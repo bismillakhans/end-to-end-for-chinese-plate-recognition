@@ -2,16 +2,8 @@
 '''
 生成车牌数据，将车牌放到自然图像中
 '''
-import os
 # import sys
-import numpy as np
-import cv2
-import argparse
 # import PIL
-from PIL import ImageFont
-from PIL import Image
-from PIL import ImageDraw
-from math import *
 
 from PlateCommon import *
 
@@ -54,7 +46,7 @@ class GenPlateScene:
         return self.img
 
     def generate(self,text):
-        print text, len(text)
+        print(text, len(text))
         fg = self.draw(text.decode(encoding="utf-8"))   # 得到白底黑字
         # cv2.imwrite('01.jpg', fg)
         fg = cv2.bitwise_not(fg)    # 得到黑底白字

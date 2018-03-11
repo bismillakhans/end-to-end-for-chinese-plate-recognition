@@ -1,13 +1,12 @@
 #coding=utf-8
-import PIL
-from PIL import ImageFont
-from PIL import Image
-from PIL import ImageDraw
-import cv2;
-import numpy as np;
 import os;
 from math import *
 
+import cv2;
+import numpy as np;
+from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 
 # font = ImageFont.truetype("Arial-Bold.ttf",14)
 
@@ -108,7 +107,7 @@ def GenCh(f,val):
 def GenCh1(f,val):
     img=Image.new("RGB", (23,70),(255,255,255))
     draw = ImageDraw.Draw(img)
-    draw.text((0, 2),val.decode('utf-8'),(0,0,0),font=f)
+    draw.text((0, 2),val,(0,0,0),font=f)
     A = np.array(img)
     return A
 def AddGauss(img, level):
@@ -160,6 +159,10 @@ class GenPlate:
             self.img[0:70, base  : base+23]= GenCh1(self.fontE,val[i+2]);
         return self.img
     def generate(self,text):
+        # 这里输入的是str类型
+        # 后续处理是针对bytes
+        # 所以在这里进行转换
+        text = text.encode("utf-8")
         if len(text) == 9:
             fg = self.draw(text.decode(encoding="utf-8"));
             fg = cv2.bitwise_not(fg);
@@ -180,7 +183,7 @@ class GenPlate:
         box = [0,0,0,0,0,0,0];
         if(pos!=-1):
             box[pos]=1;
-        for unit,cpos in zip(box,xrange(len(box))):
+        for unit,cpos in zip(box,range(len(box))):
             if unit == 1:
                 plateStr += val
             else:
@@ -196,7 +199,7 @@ class GenPlate:
     def genBatch(self, batchSize,pos,charRange, outputPath,size):
         if (not os.path.exists(outputPath)):
             os.mkdir(outputPath)
-        for i in xrange(batchSize):
+        for i in range(batchSize):
             plateStr = G.genPlateString(-1,-1)
             img =  G.generate(plateStr);
             img = cv2.resize(img,size);

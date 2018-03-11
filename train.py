@@ -5,9 +5,6 @@
 import sys
 sys.path.insert(0, "../../python")
 import mxnet as mx
-import numpy as np
-import cv2, random
-from io import BytesIO
 from genplate import *
 
 
@@ -35,12 +32,12 @@ def gen_rand():
     label= [];
     label.append(rand_range(0,31));
     label.append(rand_range(41,65));
-    for i in xrange(5):
+    for i in range(5):
         label.append(rand_range(31,65))
 
     name+=chars[label[0]]
     name+=chars[label[1]]
-    for i in xrange(5):
+    for i in range(5):
         name+=chars[label[i+2]]
     return name,label
 
@@ -65,10 +62,10 @@ class OCRIter(mx.io.DataIter):
         self.width = width
         self.provide_data = [('data', (batch_size, 3, height, width))]
         self.provide_label = [('softmax_label', (self.batch_size, num_label))]
-        print "start"
+        print("start")
     def __iter__(self):
 
-        for k in range(self.count / self.batch_size):
+        for k in range(self.count // self.batch_size):
             data = []
             label = []
             for i in range(self.batch_size):
@@ -124,7 +121,7 @@ def Accuracy(label, pred):
     label = label.T.reshape((-1, ))
     hit = 0
     total = 0
-    for i in range(pred.shape[0] / 7):
+    for i in range(pred.shape[0] // 7):
         ok = True
         for j in range(7):
             k = i * 7 + j
@@ -140,13 +137,14 @@ def Accuracy(label, pred):
 def train():
     network = get_ocrnet()
     devs = [mx.gpu(i) for i in range(1)]
+    print(mx.gpu())
     model = mx.model.FeedForward(
                                  symbol = network,
                                  num_epoch = 1,
                                  learning_rate = 0.001,
                                  wd = 0.00001,
                                  initializer = mx.init.Xavier(factor_type="in", magnitude=2.34),
-                                 momentum = 0.9)
+                                 momentum = 0.9,ctx=mx.gpu())
     batch_size = 8
     data_train = OCRIter(500000, batch_size, 7, 30, 120)
     data_test = OCRIter(1000, batch_size,7, 30, 120)
@@ -154,9 +152,10 @@ def train():
     import logging
     head = '%(asctime)-15s %(message)s'
     logging.basicConfig(level=logging.DEBUG, format=head)
+    gpu_device = mx.gpu()
     model.fit(X = data_train, eval_data = data_test, eval_metric = Accuracy, batch_end_callback=mx.callback.Speedometer(batch_size, 50))
     model.save("cnn-ocr")
-    print gen_rand()
+    print(gen_rand())
 
 
 if __name__ == '__main__':

@@ -1,11 +1,5 @@
 #coding=utf-8
-import os
-import argparse
-from math import *
-import numpy as np
-import cv2
 # import PIL
-from PIL import Image, ImageFont, ImageDraw
 from PlateCommon import *
 
 class GenPlate:
@@ -51,7 +45,7 @@ class GenPlate:
         box = [0,0,0,0,0,0,0];
         if(pos!=-1):
             box[pos]=1;
-        for unit,cpos in zip(box,xrange(len(box))):
+        for unit,cpos in zip(box,range(len(box))):
             if unit == 1:
                 plateStr += val
             else:
@@ -67,7 +61,7 @@ class GenPlate:
     def genBatch(self, batchSize,pos,charRange, outputPath,size):
         if not os.path.exists(outputPath):
             os.makedirs(outputPath)
-        for i in xrange(batchSize):
+        for i in range(batchSize):
             plateStr = self.genPlateString(-1,-1)
             img = self.generate(plateStr)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -75,7 +69,7 @@ class GenPlate:
             # filename = os.path.join(outputPath, str(i).zfill(4) + '.' + plateStr + ".jpg")
             filename = os.path.join(outputPath, str(i).zfill(5) + '_' + plateStr + ".jpg")
             cv2.imwrite(filename, img)
-            print filename, plateStr
+            print(filename, plateStr)
 
 def parse_args():
     parser = argparse.ArgumentParser()
